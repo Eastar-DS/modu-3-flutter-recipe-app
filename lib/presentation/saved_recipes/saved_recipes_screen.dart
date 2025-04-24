@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:recipe_app/presentation/components/recipe_card.dart';
 import 'package:recipe_app/presentation/saved_recipes/saved_recipes_action.dart';
 import 'package:recipe_app/presentation/saved_recipes/saved_recipes_state.dart';
-import 'package:recipe_app/presentation/saved_recipes/saved_recipes_view_model.dart';
 import 'package:recipe_app/ui/text_style.dart';
 
 class SavedRecipesScreen extends StatelessWidget {

@@ -22,6 +22,10 @@ class SearchRecipesScreen extends StatefulWidget {
 }
 
 class _SearchRecipesScreenState extends State<SearchRecipesScreen> {
+  final TextEditingController _textEditingController = TextEditingController(
+    text: '',
+  );
+
   @override
   void initState() {
     super.initState();
@@ -51,10 +55,13 @@ class _SearchRecipesScreenState extends State<SearchRecipesScreen> {
                         label: '',
                         placeHolder: 'Search recipe',
                         isSearch: true,
-                        controller: TextEditingController(text: ''),
+                        controller: _textEditingController,
                         onValueChange: (String value) async {
                           widget.onAction(
-                            SearchRecipesAction.onValueChange(value),
+                            SearchRecipesAction.onValueChange(
+                              value,
+                              widget.state.filter,
+                            ),
                           );
                         },
                         onTap: () {},
@@ -62,7 +69,12 @@ class _SearchRecipesScreenState extends State<SearchRecipesScreen> {
                     ),
                     FilterList(
                       ontap: () {
-                        widget.onAction(SearchRecipesAction.onFilterTap());
+                        widget.onAction(
+                          SearchRecipesAction.onFilterTap(
+                            _textEditingController.text,
+                            widget.state.filter,
+                          ),
+                        );
                       },
                     ),
                   ],

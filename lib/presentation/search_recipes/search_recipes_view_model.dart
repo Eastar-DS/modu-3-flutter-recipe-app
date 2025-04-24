@@ -16,13 +16,22 @@ class SearchRecipesViewModel with ChangeNotifier {
 
   SearchRecipesState get state => _state;
 
-  void onAction(SearchRecipesAction action) {
+  void onAction(SearchRecipesAction action) async {
     switch (action) {
       case OnFilterTap():
+        await getSearchedRecipes(action.value, action.filter);
         break;
       case OnValueChange():
-        fetchSearchedRecipes(action.value);
+        await getSearchedRecipes(action.value, action.filter);
     }
+  }
+
+  void setFilter(Filter filter) {
+    _state = _state.copyWith(isLoading: true);
+    notifyListeners();
+
+    _state = _state.copyWith(isLoading: false, filter: filter);
+    notifyListeners();
   }
 
   void whenOpenScreen() {
@@ -44,7 +53,7 @@ class SearchRecipesViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchSearchedRecipes(String value) async {
+  Future<void> getSearchedRecipes(String value, Filter filter) async {
     _state = _state.copyWith(isLoading: true);
     notifyListeners();
     final recipes = await _recipeRepository.getRecipes();
@@ -52,34 +61,35 @@ class SearchRecipesViewModel with ChangeNotifier {
         recipes.where((element) {
           return element.title.toLowerCase().contains(value.toLowerCase());
         }).toList();
+    // final filterdRecipes =
+    //     searchedRecipes.where((element) {
+    //       if (filter.times.contains((element.createdAt ?? Time.all)) ||
+    //           (filter.rates.contains(doubleToRate(element.rating))) ||
+    //           (filter.categories.contains(element.category))) {
+    //         return true;
+    //       }
+    //       return false;
+    //     }).toList();
+    print(searchedRecipes);
+    final filterdRecipes =
+        (filter.categories == [] && filter.rates == [] && filter.times == [])
+            ? searchedRecipes.toList()
+            : searchedRecipes.where((element) {
+              if (filter.times.contains((element.createdAt ?? Time.all)) ||
+                  (filter.rates.contains(doubleToRate(element.rating))) ||
+                  (filter.categories.contains(element.category))) {
+                return true;
+              }
+              return false;
+            }).toList();
+    print("filterdRecipes : $filterdRecipes");
     _state = _state.copyWith(
       isSearched: value == '' ? false : true,
       isLoading: false,
       searchText: value,
-      recipeList: searchedRecipes,
-    );
-    notifyListeners();
-  }
-
-  Future<void> fetchFilterdRecipes(Filter filter) async {
-    _state = _state.copyWith(isLoading: true);
-    notifyListeners();
-
-    final recipes = await _recipeRepository.getRecipes();
-    final filterdRecipes =
-        recipes.where((element) {
-          if (filter.times.contains((element.createdAt ?? Time.all)) ||
-              (filter.rates.contains(doubleToRate(element.rating))) ||
-              (filter.categories.contains(element.category))) {
-            return true;
-          }
-          return false;
-        }).toList();
-    _state = _state.copyWith(
       recipeList: filterdRecipes,
-      isLoading: false,
-      isSearched: true,
     );
+    print(_state);
     notifyListeners();
   }
 

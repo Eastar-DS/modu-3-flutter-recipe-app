@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:recipe_app/data/util/category_enum.dart';
 import 'package:recipe_app/data/util/rate_enum.dart';
 import 'package:recipe_app/data/util/time_enum.dart';
+import 'package:recipe_app/domain/model/filter.dart';
 import 'package:recipe_app/presentation/components/filter_button.dart';
 import 'package:recipe_app/presentation/components/rating_button.dart';
 import 'package:recipe_app/presentation/components/small_button.dart';
+import 'package:recipe_app/presentation/search_recipes/filter_search_action.dart';
+import 'package:recipe_app/presentation/search_recipes/filter_search_state.dart';
 import 'package:recipe_app/presentation/search_recipes/filter_search_view_model.dart';
 import 'package:recipe_app/presentation/search_recipes/search_recipes_view_model.dart';
 import 'package:recipe_app/ui/color_style.dart';
 import 'package:recipe_app/ui/text_style.dart';
 
 class FilterSearchBottomSheet extends StatelessWidget {
-  final FilterSearchViewModel viewModel;
-  final SearchRecipesViewModel searchViewModel;
+  final FilterSearchState state;
+  final void Function(FilterSearchAction action) onAction;
   const FilterSearchBottomSheet({
     super.key,
-    required this.viewModel,
-    required this.searchViewModel,
+    required this.state,
+    required this.onAction,
   });
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: ListenableBuilder(
-        listenable: viewModel,
-        builder: (context, child) {
-          return Container(
+          child: Container(
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
             height: MediaQuery.of(context).size.height * 0.7,
             decoration: BoxDecoration(
@@ -50,7 +51,20 @@ class FilterSearchBottomSheet extends StatelessWidget {
                         value: time,
                         color: ColorStyles.primary100,
                         ontap: () {
-                          viewModel.onTapButton(time);
+                          List<Time> times = state.filter.times.toList();
+                          if (times.contains(time)) {
+                            times =
+                                times
+                                    .where((element) => element != time)
+                                    .toList();
+                          } else {
+                            times.add(time);
+                          }
+                          onAction(
+                            FilterSearchAction.onFilterTap(
+                              state.filter.copyWith(times: times),
+                            ),
+                          );
                         },
                       ),
                       SizedBox(width: 10),
@@ -75,7 +89,21 @@ class FilterSearchBottomSheet extends StatelessWidget {
                             Rate.star4,
                             Rate.star5,
                           ];
-                          viewModel.onTapButton(rateValues[index]);
+                          List<Rate?> rates = state.filter.rates.toList();
+                          final rate = rateValues[index];
+                          if (rates.contains(rate)) {
+                            rates =
+                                rates
+                                    .where((element) => element != rate)
+                                    .toList();
+                          } else {
+                            rates.add(rate);
+                          }
+                          onAction(
+                            FilterSearchAction.onFilterTap(
+                              state.filter.copyWith(rates: rates),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -94,7 +122,24 @@ class FilterSearchBottomSheet extends StatelessWidget {
                               value: e,
                               color: ColorStyles.primary100,
                               ontap: () {
-                                viewModel.onTapButton(e);
+                                // viewModel.onTapButton(e);
+                                List<Categories> categories =
+                                    state.filter.categories.toList();
+                                if (categories.contains(e)) {
+                                  categories =
+                                      categories
+                                          .where((element) => element != e)
+                                          .toList();
+                                } else {
+                                  categories.add(e);
+                                }
+                                onAction(
+                                  FilterSearchAction.onFilterTap(
+                                    state.filter.copyWith(
+                                      categories: categories,
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                           )
@@ -106,19 +151,18 @@ class FilterSearchBottomSheet extends StatelessWidget {
                   child: SmallButton(
                     name: "Filter",
                     onClick: () async {
-                      await searchViewModel.fetchFilterdRecipes(
-                        viewModel.state.filter,
-                      );
-                      Navigator.pop(context);
+                      // await searchViewModel.fetchFilterdRecipes(
+                      //   viewModel.state.filter,
+                      // );
+          
+                      onAction(FilterSearchAction.onButtonTap(state.filter));
                     },
                     color: ColorStyles.primary100,
                   ),
                 ),
               ],
             ),
-          );
-        },
-      ),
-    );
+          ),
+        );
   }
 }
