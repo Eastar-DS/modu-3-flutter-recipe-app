@@ -36,7 +36,7 @@ class _HomeScreenRootState extends State<HomeScreenRoot> {
                 widget.viewModel.onAction(HomeAction.onSelectTap(action.index));
                 break;
               case OnRecipeTap(recipe: final recipe):
-                print(recipe);
+                context.push("/ingredient/${recipe.recipeId}");
                 break;
               case OnBookmarkTap():
                 widget.viewModel.onAction(

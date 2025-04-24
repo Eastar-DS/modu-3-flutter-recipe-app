@@ -113,14 +113,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 itemBuilder: (context, index) {
                   final recipe = widget.state.allRecipes[index];
-                  return DishCard(
-                    recipe: recipe,
-                    isBookmarked: widget.state.bookmarkList.contains(
-                      recipe.recipeId,
-                    ),
-                    onBookmarkTap: (recipeId) {
-                      widget.onAction(HomeAction.onBookmarkTap(recipeId));
+                  return GestureDetector(
+                    onTap: () {
+                      widget.onAction(HomeAction.onRecipeTap(recipe));
                     },
+                    child: DishCard(
+                      recipe: recipe,
+                      isBookmarked: widget.state.bookmarkList.contains(
+                        recipe.recipeId,
+                      ),
+                      onBookmarkTap: (recipeId) {
+                        widget.onAction(HomeAction.onBookmarkTap(recipeId));
+                      },
+                    ),
                   );
                 },
               ),
